@@ -1,0 +1,163 @@
+// 使用 Java 和 IntelliJ 平台插件
+plugins {
+    id 'java'
+    id 'org.jetbrains.intellij' version '1.16.1'
+    id 'maven-publish'  // 添加 maven-publish 插件
+}
+
+// 项目基本信息
+group = 'com.renrui.review'
+version = '1.0.0'
+
+// 配置 Maven 中央仓库
+repositories {
+    mavenCentral()
+    gradlePluginPortal()
+}
+
+// Java 工具链配置
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+// 项目依赖
+dependencies {
+    // 测试依赖
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
+    testImplementation 'org.mockito:mockito-core:5.3.1'
+    
+    // HTTP 客户端
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.12.0'
+    
+    // JSON 处理
+    implementation 'com.google.code.gson:gson:2.10.1'
+    
+    // ONNX Runtime
+    implementation 'com.microsoft.onnxruntime:onnxruntime:1.16.3'
+    
+    // Apache Commons
+    implementation 'org.apache.commons:commons-lang3:3.14.0'
+    implementation 'commons-io:commons-io:2.15.1'
+    
+    // Java Parser
+    implementation 'com.github.javaparser:javaparser-core:3.25.8'
+
+    // Caffeine
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
+    implementation 'com.google.guava:guava:32.1.2-jre'
+}
+
+// IntelliJ 平台插件配置
+intellij {
+    version = '2023.1'  // 目标 IDE 版本
+    type = 'IC'         // 社区版
+    plugins = ['java']  // 依赖的插件
+    updateSinceUntilBuild = false
+    sameSinceUntilBuild = true
+    downloadSources = true
+}
+
+// 插件兼容性配置
+patchPluginXml {
+    sinceBuild = '231'      // 最低兼容版本
+    untilBuild = '241.*'    // 最高兼容版本
+    changeNotes = """
+      <ul>
+        <li>1.0.0 - 初始版本</li>
+        <ul>
+          <li>支持代码提交前AI审查</li>
+          <li>实现文件缓存和性能优化</li>
+          <li>添加代码脱敏功能</li>
+          <li>支持自定义规则配置</li>
+        </ul>
+      </ul>
+    """
+}
+
+// 测试配置
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+    
+    // 配置测试时的JVM参数
+    maxHeapSize = "2048m"
+    jvmArgs = ['-XX:MaxMetaspaceSize=512m']
+    systemProperty "file.encoding", "UTF-8"
+}
+
+// Gradle 配置
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    options.fork = true
+    options.forkOptions.jvmArgs = ['-Xmx2048m']
+}
+
+// 配置所有Java进程的内存参数
+tasks.withType(JavaExec) {
+    jvmArgs = ['-Xmx2048m', '-XX:MaxMetaspaceSize=512m']
+    systemProperty "file.encoding", "UTF-8"
+}
+
+buildSearchableOptions {
+    enabled = false
+}
+
+// 插件打包配置
+buildPlugin {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    archiveBaseName = 'pre-submit-code-review'
+    from('src/main/resources') {
+        include 'messages/**'
+        include 'META-INF/**'
+    }
+}
+
+// 资源处理配置
+processResources {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    from('src/main/resources') {
+        include '**/*.properties'
+        include 'META-INF/**'
+        filteringCharset = 'UTF-8'
+    }
+}
+
+// 准备沙箱配置
+prepareSandbox {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    from('src/main/resources') {
+        include 'messages/**'
+        include 'META-INF/**'
+        into('/')
+    }
+}
+
+runIde {
+    // 增加IDE运行内存
+    jvmArgs = ['-Xmx2048m', '-XX:MaxMetaspaceSize=512m']
+    autoReloadPlugins = true
+    // 开发调试时使用的IDE版本
+    ideDir = file('E:/Program Files/JetBrains/IntelliJ IDEA 2023.2.5')
+}
+
+// 发布配置
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = project.group
+            artifactId = 'pre-submit-code-review'
+            version = project.version
+            from components.java
+        }
+    }
+}
+
+publishPlugin {
+    token = System.getenv('INTELLIJ_PUBLISH_TOKEN')
+    channels = ['stable']
+} 

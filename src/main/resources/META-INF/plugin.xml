@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <!-- 插件唯一标识符 -->
+    <id>com.renrui.review</id>
+
+    <!-- 插件名称 -->
+    <name>Pre-Submit Code Review</name>
+
+    <!-- 开发商信息 -->
+    <vendor email="support@renrui.com" url="https://www.renrui.com">RenRui</vendor>
+
+    <!-- 插件描述 -->
+    <description><![CDATA[
+    AI-powered code review plugin for pre-submit checks.<br>
+    <ul>
+        <li>Automatic code review before commit</li>
+        <li>AI-assisted code quality analysis</li>
+        <li>File caching and performance optimization</li>
+        <li>Code sanitization</li>
+        <li>Custom rule configuration</li>
+    </ul>
+    ]]></description>
+
+    <!-- 依赖声明 -->
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.java</depends>
+    <depends>com.intellij.modules.vcs</depends>
+    <depends>Subversion</depends>
+
+    <!-- Extension points defined by the plugin.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- 注册提交拦截器 -->
+        <vcs.commitHandler implementation="com.renrui.presubmit.codereview.handler.AiReviewCheckinHandler"/>
+        <checkinHandler implementation="com.renrui.presubmit.codereview.handler.AiReviewCheckinHandler"/>
+        <!-- 注册设置服务 -->
+        <applicationService serviceImplementation="com.renrui.presubmit.codereview.settings.AiReviewSettings"/>
+        <projectService serviceImplementation="com.renrui.presubmit.codereview.service.AsyncAiReviewService"/>
+        <!-- 注册设置页面 -->
+        <projectConfigurable instance="com.renrui.presubmit.codereview.settings.AiReviewSettingsConfigurable"
+                           displayName="AI Code Review"/>
+        <!-- 注册编辑器标记提供器 -->
+        <codeInsight.lineMarkerProvider
+                language="JAVA"
+                implementationClass="com.renrui.presubmit.codereview.editor.AiReviewLineMarkerProvider"/>
+        <!-- 注册通知组 -->
+        <notificationGroup id="AI Code Review" displayType="BALLOON"/>
+    </extensions>
+
+    <!-- 资源文件 -->
+    <resource-bundle>messages.AiReviewBundle</resource-bundle>
+
+    <actions>
+        <group id="AiReviewActionGroup" text="AI Code Review" popup="true">
+            <action id="ReviewAction" 
+                    class="com.renrui.presubmit.codereview.actions.ReviewAction"
+                    text="Review Code" 
+                    description="Run AI code review"/>
+            <add-to-group group-id="Vcs.MessageActionGroup" anchor="first"/>
+        </group>
+    </actions>
+</idea-plugin> 
