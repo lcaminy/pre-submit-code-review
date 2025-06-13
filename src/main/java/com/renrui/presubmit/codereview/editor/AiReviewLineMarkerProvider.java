@@ -70,7 +70,7 @@ public class AiReviewLineMarkerProvider implements LineMarkerProvider {
                 "<p><b>建议：</b>%s</p>" +
                 "</div>" +
                 "</body></html>",
-                getTypeColor(issue.getType()),
+                getColorForType(issue.getType()),
                 issue.getType().getDescription(),
                 issue.getMessage(),
                 issue.getSuggestion()
@@ -80,10 +80,13 @@ public class AiReviewLineMarkerProvider implements LineMarkerProvider {
     /**
      * 获取问题类型对应的颜色
      */
-    private String getTypeColor(Issue.IssueType type) {
+    private String getColorForType(Issue.IssueType type) {
         return switch (type) {
-            case SECURITY -> "#ff0000";
+            case BUG -> "#ff0000";
+            case SECURITY -> "#ff4500";
             case PERFORMANCE -> "#ffa500";
+            case STYLE -> "#ffd700";
+            case WARNING -> "#ffff00";
             case MAINTAINABILITY -> "#0000ff";
             case BEST_PRACTICE -> "#008000";
             case CODE_STYLE -> "#808080";

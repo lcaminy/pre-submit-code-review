@@ -9,6 +9,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -56,15 +57,70 @@ public class CustomRuleEngine {
                     issues.add(new Issue(
                         Issue.IssueType.BEST_PRACTICE,
                         "违反自定义规则: " + rule.name,
-                        rule.message,
                         filePath,
-                        line
+                        line,
+                        rule.message
                     ));
                 }
             }
         }
 
+        checkSystemOut(filePath, content, issues);
+        checkMessagePunctuation(filePath, content, issues);
+        checkTodoComments(filePath, content, issues);
+
         return issues;
+    }
+
+    private Issue createIssue(Issue.IssueType type, String message, String file, String suggestion) {
+        return new Issue(
+            type,
+            message,
+            file,
+            0,  // 默认行号
+            suggestion
+        );
+    }
+
+    private void checkSystemOut(String filePath, String content, List<Issue> issues) {
+        Pattern pattern = Pattern.compile("System\\.out\\.println\\s*\\(");
+        if (pattern.matcher(content).find()) {
+            issues.add(createIssue(
+                Issue.IssueType.STYLE,
+                "代码中不应使用 System.out.println，请使用日志框架",
+                filePath,
+                "建议使用 SLF4J 或 Log4j 等日志框架"
+            ));
+        }
+    }
+
+    private void checkMessagePunctuation(String filePath, String content, List<Issue> issues) {
+        Pattern pattern = Pattern.compile("\"[^\"]*[^.!?。！？]\"");
+        if (pattern.matcher(content).find()) {
+            issues.add(createIssue(
+                Issue.IssueType.STYLE,
+                "消息文本应以标点符号结尾",
+                filePath,
+                "请在消息文本末尾添加适当的标点符号"
+            ));
+        }
+    }
+
+    private void checkTodoComments(String filePath, String content, List<Issue> issues) {
+        Pattern pattern = Pattern.compile("//\\s*TODO\\s*:\\s*(.+)");
+        Matcher matcher = pattern.matcher(content);
+        
+        while (matcher.find()) {
+            String todoContent = matcher.group(1).trim();
+            if (todoContent.length() < 10) {
+                issues.add(createIssue(
+                    Issue.IssueType.WARNING,
+                    "TODO 注释内容过短",
+                    filePath,
+                    "TODO 注释内容应不少于 10 个字，请详细描述待完成的任务"
+                ));
+            }
+        }
     }
 
     /**

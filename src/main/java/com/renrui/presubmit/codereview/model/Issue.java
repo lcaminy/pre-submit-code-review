@@ -6,22 +6,22 @@ package com.renrui.presubmit.codereview.model;
  */
 public class Issue {
     // 问题类型
-    private IssueType type;
+    private final IssueType type;
     // 问题描述
-    private String message;
+    private final String message;
     // 修改建议
-    private String suggestion;
+    private final String suggestion;
     // 问题文件
-    private String file;
+    private final String file;
     // 问题行号
-    private int line;
+    private final int line;
 
-    public Issue(IssueType type, String message, String suggestion, String file, int line) {
+    public Issue(IssueType type, String message, String file, int line, String suggestion) {
         this.type = type;
         this.message = message;
-        this.suggestion = suggestion;
         this.file = file;
         this.line = line;
+        this.suggestion = suggestion;
     }
 
     // Getters
@@ -31,10 +31,15 @@ public class Issue {
     public String getFile() { return file; }
     public int getLine() { return line; }
 
-    // 问题类型枚举
+    /**
+     * 问题类型枚举
+     */
     public enum IssueType {
-        SECURITY("安全问题"),
-        PERFORMANCE("性能问题"),
+        BUG("Bug"),
+        SECURITY("安全"),
+        PERFORMANCE("性能"),
+        STYLE("风格"),
+        WARNING("警告"),
         MAINTAINABILITY("可维护性"),
         BEST_PRACTICE("最佳实践"),
         CODE_STYLE("代码风格");

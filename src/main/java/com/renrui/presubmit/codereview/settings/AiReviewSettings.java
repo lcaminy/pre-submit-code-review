@@ -23,7 +23,17 @@ public class AiReviewSettings implements PersistentStateComponent<AiReviewSettin
     private boolean enableBugDetection = true;
     private boolean enableSecurityCheck = true;
     private boolean enablePerformanceCheck = true;
-    private int aiMode = 1; // 0: 本地模型, 1: 云端服务
+    private int aiMode = 0; // 0: 云端服务, 1: 本地模型
+
+    // 本地规则检查设置
+    private boolean enableSystemOutCheck = true;
+    private boolean enableMessagePunctuationCheck = true;
+    private boolean enableTodoCheck = true;
+
+    public enum ReviewMode {
+        LOCAL,
+        CLOUD
+    }
 
     public static AiReviewSettings getInstance() {
         return ApplicationManager.getApplication().getService(AiReviewSettings.class);
@@ -102,5 +112,38 @@ public class AiReviewSettings implements PersistentStateComponent<AiReviewSettin
 
     public void setAiMode(int aiMode) {
         this.aiMode = aiMode;
+    }
+
+    // 本地规则检查设置 getter/setter
+    public boolean isEnableSystemOutCheck() {
+        return enableSystemOutCheck;
+    }
+
+    public void setEnableSystemOutCheck(boolean enableSystemOutCheck) {
+        this.enableSystemOutCheck = enableSystemOutCheck;
+    }
+
+    public boolean isEnableMessagePunctuationCheck() {
+        return enableMessagePunctuationCheck;
+    }
+
+    public void setEnableMessagePunctuationCheck(boolean enableMessagePunctuationCheck) {
+        this.enableMessagePunctuationCheck = enableMessagePunctuationCheck;
+    }
+
+    public boolean isEnableTodoCheck() {
+        return enableTodoCheck;
+    }
+
+    public void setEnableTodoCheck(boolean enableTodoCheck) {
+        this.enableTodoCheck = enableTodoCheck;
+    }
+
+    public ReviewMode getReviewMode() {
+        return ReviewMode.values()[aiMode];
+    }
+
+    public void setReviewMode(ReviewMode reviewMode) {
+        aiMode = reviewMode.ordinal();
     }
 } 

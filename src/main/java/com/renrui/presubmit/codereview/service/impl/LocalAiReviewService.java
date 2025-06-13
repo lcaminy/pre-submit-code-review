@@ -115,23 +115,11 @@ public class LocalAiReviewService implements AiCodeReviewService {
         
         // 示例：根据预测值生成问题
         if (predictions[0] > 0.8) {
-            issues.add(new Issue(
-                Issue.IssueType.SECURITY,
-                "发现潜在的安全漏洞",
-                "建议进行安全性检查",
-                file,
-                1
-            ));
+            issues.add(createIssue(Issue.IssueType.SECURITY, "发现潜在的安全漏洞", file, "建议进行安全性检查"));
         }
         
         if (predictions[1] > 0.7) {
-            issues.add(new Issue(
-                Issue.IssueType.PERFORMANCE,
-                "可能存在性能问题",
-                "建议优化代码性能",
-                file,
-                1
-            ));
+            issues.add(createIssue(Issue.IssueType.PERFORMANCE, "可能存在性能问题", file, "建议优化代码性能"));
         }
         
         return issues;
@@ -147,5 +135,15 @@ public class LocalAiReviewService implements AiCodeReviewService {
         if (env != null) {
             env.close();
         }
+    }
+
+    private Issue createIssue(Issue.IssueType type, String message, String file, String suggestion) {
+        return new Issue(
+            type,
+            message,
+            file,
+            0,  // 默认行号
+            suggestion
+        );
     }
 } 

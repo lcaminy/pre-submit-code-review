@@ -20,6 +20,8 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
     }
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 // 项目依赖
@@ -54,7 +56,7 @@ dependencies {
 intellij {
     version = '2023.1'  // 目标 IDE 版本
     type = 'IC'         // 社区版
-    plugins = ['java']  // 依赖的插件
+    plugins = ['java']  // 只保留基础Java插件
     updateSinceUntilBuild = false
     sameSinceUntilBuild = true
     downloadSources = true
@@ -66,13 +68,7 @@ patchPluginXml {
     untilBuild = '241.*'    // 最高兼容版本
     changeNotes = """
       <ul>
-        <li>1.0.0 - 初始版本</li>
-        <ul>
-          <li>支持代码提交前AI审查</li>
-          <li>实现文件缓存和性能优化</li>
-          <li>添加代码脱敏功能</li>
-          <li>支持自定义规则配置</li>
-        </ul>
+        <li>初始版本</li>
       </ul>
     """
 }
@@ -83,11 +79,6 @@ test {
     testLogging {
         events "passed", "skipped", "failed"
     }
-    
-    // 配置测试时的JVM参数
-    maxHeapSize = "2048m"
-    jvmArgs = ['-XX:MaxMetaspaceSize=512m']
-    systemProperty "file.encoding", "UTF-8"
 }
 
 // Gradle 配置
@@ -137,12 +128,17 @@ prepareSandbox {
     }
 }
 
+// 开发环境配置
 runIde {
     // 增加IDE运行内存
     jvmArgs = ['-Xmx2048m', '-XX:MaxMetaspaceSize=512m']
-    autoReloadPlugins = true
     // 开发调试时使用的IDE版本
     ideDir = file('E:/Program Files/JetBrains/IntelliJ IDEA 2023.2.5')
+}
+
+// 清理任务
+clean {
+    delete 'build/idea-sandbox'
 }
 
 // 发布配置
